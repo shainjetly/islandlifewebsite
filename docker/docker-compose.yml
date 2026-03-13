@@ -11,6 +11,8 @@ services:
     labels:
       - "coolify.managed=true"
       - "coolify.service=web"
+      - "caddy=islandlife.koaders.com"
+      - "caddy.reverse_proxy={{upstreams 6008}}"
     environment:
       NODE_ENV: production
       NEXT_TELEMETRY_DISABLED: 1
