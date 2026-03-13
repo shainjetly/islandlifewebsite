@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, MapPin, Star, Users, Maximize, MessageCircle } from "lucide-react";
+import { ChevronRight, MapPin, Star, Users, Maximize } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import { CTASection } from "@/components/shared/cta-section";
+import { ImageGallery } from "@/components/shared/image-gallery";
+import { GoogleMap } from "@/components/shared/google-map";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { guesthouses, getGuesthouseBySlug } from "@/data/guesthouses";
 
 export async function generateStaticParams() {
@@ -38,67 +39,56 @@ export default async function GuesthouseDetailPage({
   const gh = getGuesthouseBySlug(slug);
   if (!gh) notFound();
 
+  const allImages = [gh.images.hero, ...gh.images.gallery];
+
   return (
     <>
       <Navbar />
-      <main>
-        {/* Hero Gallery */}
-        <section className="relative h-[50vh] overflow-hidden">
-          <Image
-            src={gh.images.hero}
-            alt={gh.name}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        </section>
+      <main className="pt-[85px]">
+        {/* Image Gallery */}
+        <ImageGallery images={allImages} alt={gh.name} />
 
         {/* Content */}
-        <section className="py-12 lg:py-20 bg-background">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section className="py-12 lg:py-20 bg-white dark:bg-[#0c0a09]">
+          <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 text-muted-foreground text-sm mb-6">
-              <Link href="/" className="hover:text-primary transition-colors">
+            <nav className="flex items-center gap-2 text-muted-foreground text-sm mb-8">
+              <Link href="/" className="hover:text-foreground transition-colors">
                 Home
               </Link>
               <ChevronRight className="h-3.5 w-3.5" />
-              <Link
-                href="/guesthouses"
-                className="hover:text-primary transition-colors"
-              >
+              <Link href="/guesthouses" className="hover:text-foreground transition-colors">
                 Guesthouses
               </Link>
               <ChevronRight className="h-3.5 w-3.5" />
               <span className="text-foreground">{gh.name}</span>
             </nav>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Main */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+              {/* Main Content */}
               <div className="lg:col-span-2">
-                <div className="flex items-center gap-3 mb-2">
-                  {gh.badges.map((badge) => (
-                    <Badge
-                      key={badge}
-                      className="bg-primary text-white text-[10px] font-bold tracking-wider uppercase"
-                    >
-                      {badge}
-                    </Badge>
-                  ))}
-                </div>
-                <h1 className="font-display text-3xl md:text-4xl font-bold mb-3">
+                {gh.badges.length > 0 && (
+                  <div className="flex items-center gap-2 mb-4">
+                    {gh.badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className="text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground bg-[#f5f5f4] dark:bg-white/5 px-3 py-1.5 rounded-full"
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <h1 className="text-3xl md:text-4xl font-bold tracking-[-0.03em] mb-3">
                   {gh.name}
                 </h1>
+
                 <div className="flex items-center gap-4 text-muted-foreground mb-8">
                   <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-primary text-primary" />
-                    <span className="text-sm font-bold text-foreground">
-                      {gh.rating}
-                    </span>
-                    <span className="text-xs">
-                      ({gh.reviewCount} reviews)
-                    </span>
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span className="text-sm font-semibold text-foreground">{gh.rating}</span>
+                    <span className="text-xs">({gh.reviewCount} reviews)</span>
                   </div>
                   <span className="flex items-center gap-1.5 text-sm">
                     <MapPin className="h-4 w-4" />
@@ -106,107 +96,96 @@ export default async function GuesthouseDetailPage({
                   </span>
                 </div>
 
-                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-4">
-                  About This Guesthouse
-                </h2>
-                <p className="text-muted-foreground leading-relaxed mb-10">
-                  {gh.description}
-                </p>
-
-                {/* Room Types */}
-                <h2 className="text-xl font-bold mb-6">Available Room Types</h2>
-                <div className="space-y-6">
-                  {gh.rooms.map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex flex-col md:flex-row gap-6 bg-card rounded-xl border overflow-hidden"
-                    >
-                      <div className="relative w-full md:w-64 aspect-[4/3] md:aspect-auto shrink-0">
-                        <Image
-                          src={room.image}
-                          alt={room.name}
-                          fill
-                          className="object-cover"
-                          sizes="256px"
-                        />
-                      </div>
-                      <div className="p-5 flex-1">
-                        <h3 className="text-lg font-bold mb-2">{room.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {room.description}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1.5">
-                            <Users className="h-3.5 w-3.5" />
-                            {room.maxGuests} guests
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Maximize className="h-3.5 w-3.5" />
-                            {room.size}
-                          </span>
-                        </div>
-                        <div className="mt-4 pt-4 border-t">
-                          <span className="text-lg font-bold">
-                            ${room.priceFrom}
-                            <span className="text-sm text-muted-foreground font-normal">
-                              {" "}/ night
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="mb-10">
+                  <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground mb-4">
+                    About This Guesthouse
+                  </h2>
+                  <p className="text-muted-foreground text-base leading-relaxed">
+                    {gh.description}
+                  </p>
                 </div>
+
+                <div className="mb-10">
+                  <h2 className="text-xl font-bold mb-6">Room Types</h2>
+                  <div className="space-y-5">
+                    {gh.rooms.map((room) => (
+                      <div key={room.id} className="flex flex-col md:flex-row gap-5 bg-[#fafaf9] dark:bg-[#111] rounded-xl overflow-hidden">
+                        <div className="relative w-full md:w-56 aspect-[4/3] md:aspect-auto shrink-0">
+                          <Image src={room.image} alt={room.name} fill className="object-cover" sizes="224px" />
+                        </div>
+                        <div className="p-5 flex-1">
+                          <h3 className="text-lg font-semibold mb-2">{room.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-3">{room.description}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Users className="h-3.5 w-3.5" />
+                              {room.maxGuests} guests
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Maximize className="h-3.5 w-3.5" />
+                              {room.size}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {gh.location.coordinates && (
+                  <div>
+                    <h3 className="text-xl font-bold mb-5">Location</h3>
+                    <GoogleMap
+                      lat={gh.location.coordinates.lat}
+                      lng={gh.location.coordinates.lng}
+                      name={gh.name}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Sidebar */}
               <div>
-                <div className="bg-card rounded-xl border p-6 sticky top-24">
-                  <div className="text-sm text-muted-foreground mb-1">
-                    Starting from
-                  </div>
-                  <div className="text-3xl font-bold mb-6">
-                    ${gh.priceFrom}
-                    <span className="text-base text-muted-foreground font-normal">
-                      {" "}/ night
-                    </span>
-                  </div>
-                  <Button
-                    asChild
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-wider mb-3"
-                  >
-                    <Link href="/contact">Book Now</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white font-bold"
-                  >
-                    <a
-                      href="https://wa.me/9607771234"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MessageCircle className="mr-2 h-4 w-4" />
-                      WhatsApp
-                    </a>
-                  </Button>
-
-                  <div className="mt-6 pt-6 border-t">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
-                      Amenities
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {gh.amenities.map((a, i) => (
-                        <span
-                          key={i}
-                          className="text-xs font-medium bg-muted px-3 py-1.5 rounded-full"
-                        >
-                          {a.label}
-                        </span>
-                      ))}
+                <div className="bg-[#fafaf9] dark:bg-[#111] rounded-xl p-7 sticky top-[105px]">
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground mb-6">
+                    Quick Info
+                  </h3>
+                  <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Location</span>
+                      <span className="text-sm font-semibold">{gh.location.island}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Atoll</span>
+                      <span className="text-sm font-semibold">{gh.location.atoll}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Rating</span>
+                      <span className="text-sm font-semibold">{gh.rating} / 5</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-muted-foreground">Rooms</span>
+                      <span className="text-sm font-semibold">{gh.rooms.length} types</span>
                     </div>
                   </div>
+
+                  <h4 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground mb-4">
+                    Amenities
+                  </h4>
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {gh.amenities.map((a, i) => (
+                      <span key={i} className="text-xs font-medium text-muted-foreground bg-white dark:bg-white/5 px-3 py-1.5 rounded-full">
+                        {a.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <Button
+                    asChild
+                    className="w-full bg-foreground hover:bg-foreground/90 text-background font-medium tracking-wide rounded-full py-6"
+                  >
+                    <Link href="/contact">Enquire Now</Link>
+                  </Button>
                 </div>
               </div>
             </div>

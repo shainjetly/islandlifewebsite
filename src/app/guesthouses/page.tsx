@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import { HeroSection } from "@/components/shared/hero-section";
 import { CTASection } from "@/components/shared/cta-section";
-import { GuesthouseGrid } from "@/components/guesthouses/guesthouse-grid";
+import { GuesthouseListing } from "@/components/guesthouses/guesthouse-listing";
 import { guesthouses } from "@/data/guesthouses";
 
 export const metadata: Metadata = {
@@ -26,19 +26,9 @@ export default function GuesthousesPage() {
           overlay="medium"
         />
 
-        <section className="py-20 lg:py-28 bg-white dark:bg-[#0c0a09]">
+        <section className="py-16 lg:py-24 bg-white dark:bg-[#0c0a09]">
           <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-            <div className="flex items-center justify-between mb-14">
-              <p className="text-sm text-muted-foreground">
-                Showing{" "}
-                <span className="font-semibold text-foreground">
-                  {guesthouses.length}
-                </span>{" "}
-                guesthouses
-              </p>
-            </div>
-
-            <GuesthouseGrid guesthouses={guesthouses} />
+            <GuesthouseListing guesthouses={guesthouses} />
           </div>
         </section>
 
